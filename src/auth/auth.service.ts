@@ -33,19 +33,23 @@ export class AuthService {
     }
   }
 
-  public async getAuthenticatedUser(email: string, hashedPassword: string) {
+  public async getAuthenticatedUser(email: string, plainTextPassword: string) {
     try {
       const user = await this.usersService.getByEmail(email);
-      const isPasswordMatching = await bcrypt.compare(hashedPassword, user.password);
-
-      if (!isPasswordMatching) {
-        throw new HttpException(CREDS_WRONG_MSG, HttpStatus.BAD_REQUEST);
-      }
+      await this.verifyPassword(plainTextPassword, user.password);
 
       //FIXME: We do it to hide in the response. We will fix it later.
       user.password = undefined
       return user;
     } catch (err) {
+      throw new HttpException(CREDS_WRONG_MSG, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  private async verifyPassword(plainTextPassword: string, hashedPassword: string) {
+    const isPasswordMatching = await bcrypt.compare(plainTextPassword, hashedPassword);
+
+    if (!isPasswordMatching) {
       throw new HttpException(CREDS_WRONG_MSG, HttpStatus.BAD_REQUEST);
     }
   }
