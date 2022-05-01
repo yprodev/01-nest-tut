@@ -58,16 +58,36 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
+## Entities
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Seed the data for Post entity
 
-## Stay in touch
+Create a database query
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```sql
 
-## License
+CREATE DATABASE nestjs
+  WITH 
+  OWNER = admin
+  ENCODING = 'UTF8'
+  LC_COLLATE = 'en_US.utf8'
+  LC_CTYPE = 'en_US.utf8'
+  TABLESPACE = pg_default
+  CONNECTION LIMIT = -1;
 
-Nest is [MIT licensed](LICENSE).
+```
+
+Create Table for Postgres SQL
+
+```sql
+
+CREATE TABLE public.post
+(
+  id integer NOT NULL DEFAULT nextval('post_id_seq'::regclass),
+  title character varying COLLATE pg_catalog."default" NOT NULL,
+  content character varying COLLATE pg_catalog."default" NOT NULL,
+  CONSTRAINT "PK_be5fda3aac270b134ff9c21cdee" PRIMARY KEY (id)
+)
+
+```
+
