@@ -1,9 +1,13 @@
 import { randomUUID } from 'crypto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import UpdatePostDto from './dto/updatePost.dto';
 import CreatePostDto from './dto/createPost.dto';
 import { Post } from './post.interface';
+import PostEntity from './post.entity';
+
 
 const NOT_FOUND_MSG = 'Post not found';
 
@@ -12,45 +16,41 @@ export class PostsService {
   private lastPostId = 0;
   private posts: Post[] = [];
 
-  getAllPosts() {
-    return this.posts;
+  constructor(@InjectRepository(PostEntity) private postsRepository: Repository<PostEntity>) {}
+
+  async getAllPosts() {
+    return await this.postsRepository.find();
   }
 
-  getPostById(id: string) {
-    const post = this.posts.find(post => post.id === id);
+  async getPostById(id: string) {
+    const post = await this.postsRepository.findOne({ where: { id }});
 
     if (post) return post;
 
     throw new HttpException(NOT_FOUND_MSG, HttpStatus.NOT_FOUND);
   }
 
-  replacePost(id: string, post: UpdatePostDto) {
-    const postIndex = this.findPostIndex(id);
+  async createPost(post: CreatePostDto) {
+    const newPost = await this.postsRepository.create(post);
+    this.postsRepository.save(newPost);
 
-    if (postIndex > -1) {
-      this.posts[postIndex] = post;
-      return post;
+    return newPost;
+  }
+
+  async updatePost(id: string, post: UpdatePostDto) {
+    await this.postsRepository.update(id, post);
+    const updatedPost = await this.postsRepository.findOne({ where: { id }});
+    if (updatedPost) {
+      return updatedPost;
     }
 
     throw new HttpException(NOT_FOUND_MSG, HttpStatus.NOT_FOUND);
   }
 
-  createPost(post: CreatePostDto) {
-    const newPost: Post = {
-      id: randomUUID(),
-      ...post
-    };
-    this.posts.push(newPost);
+  async deletePost(id: string) {
+    const deletedResponse = await this.postsRepository.delete(id);
 
-    return newPost;
-  }
-
-  deletePost(id: string) {
-    const postIndex = this.findPostIndex(id);
-
-    if (postIndex > -1) {
-      this.posts.splice(postIndex, 1);
-    } else {
+    if (!deletedResponse.affected) {
       throw new HttpException(NOT_FOUND_MSG, HttpStatus.NOT_FOUND);
     }
   }
