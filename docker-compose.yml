@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgres:
-    container_name: postgres
+    container_name: postgres-nest-tut
     image: postgres:latest
     ports:
       - "5432:5432"
@@ -10,11 +10,11 @@ services:
     env_file:
       - docker.env
     networks:
-      - postgres
+      - postgres-nest-tut
     
   pgadmin:
     links:
-      - postgres:postgres
+      - postgres:postgres-nest-tut
     container_name: pgadmin
     image: dpage/pgadmin4
     ports:
@@ -24,8 +24,8 @@ services:
     env_file:
       - docker.env
     networks:
-      - postgres
+      - postgres-nest-tut
 
 networks:
-  postgres:
+  postgres-nest-tut:
     driver: bridge
