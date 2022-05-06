@@ -1,9 +1,12 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 import { UsersService } from "../users/users.service";
 import { PostgresErrorCode } from '../database/postgresErrorCodes.enum'
 import { RegisterDto } from '../auth/dto/register.dto'
+import { TokenPayload } from './tokenPayload.interface';
 
 const ROUNDS_NUMBER = 12;
 const USER_EMAIL_EXISTS_MSG = 'User with this email already exists';
@@ -11,7 +14,11 @@ const SOMETHING_WRONG_MSG = 'User with this email already exists';
 const CREDS_WRONG_MSG = 'Wrong credentials provided';
 
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService
+  ) {}
 
   public async register(registerationData: RegisterDto) {
     const hashedPassword = await bcrypt.hash(registerationData.password, ROUNDS_NUMBER);
@@ -44,6 +51,18 @@ export class AuthService {
     } catch (err) {
       throw new HttpException(CREDS_WRONG_MSG, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public getCookieWithJwtToken(userId: string) {
+    const payload: TokenPayload = { userId };
+    const token = this.jwtService.sign(payload);
+
+    return `
+      Authentication=${token};
+      HttpOnly;
+      Path=/;
+      Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}
+    `;
   }
 
   private async verifyPassword(plainTextPassword: string, hashedPassword: string) {
