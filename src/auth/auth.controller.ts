@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { Response } from "express";
 
 import { AuthService } from "./auth.service";
@@ -28,6 +28,17 @@ export class AuthController {
     user.password = undefined;
 
     return response.send(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  authenticate(@Req() request: RequestWithUser) {
+    const user = request.user;
+
+    //FIXME: Should be fixed
+    user.password = undefined;
+
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
