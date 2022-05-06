@@ -65,6 +65,15 @@ export class AuthService {
     `;
   }
 
+  public getCookieForLogout() {
+    return `
+      Authentication=;
+      HttpOnly;
+      Path=/;
+      Max-Age=0
+    `;
+  }
+
   private async verifyPassword(plainTextPassword: string, hashedPassword: string) {
     const isPasswordMatching = await bcrypt.compare(plainTextPassword, hashedPassword);
 

@@ -3,6 +3,7 @@ import { Response } from "express";
 
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
+import JwtAuthGuard from "./jwtAuth.guard";
 import { LocalAuthGuard } from "./localAuth.guard";
 import { RequestWithUser } from './requestWithUser.interface'
 
@@ -27,5 +28,13 @@ export class AuthController {
     user.password = undefined;
 
     return response.send(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
+    response.setHeader('Set-Cookie', this.authService.getCookieForLogout());
+    
+    return response.sendStatus(200); 
   }
 }
