@@ -7,6 +7,7 @@ import UpdatePostDto from './dto/updatePost.dto';
 import CreatePostDto from './dto/createPost.dto';
 import { Post } from './post.interface';
 import PostEntity from './post.entity';
+import { PostNotFoundException } from './exception/postNotFound.exception';
 
 
 const NOT_FOUND_MSG = 'Post not found';
@@ -26,7 +27,7 @@ export class PostsService {
 
     if (post) return post;
 
-    throw new HttpException(NOT_FOUND_MSG, HttpStatus.NOT_FOUND);
+    throw new PostNotFoundException(id);
   }
 
   async createPost(post: CreatePostDto) {
@@ -43,14 +44,14 @@ export class PostsService {
       return updatedPost;
     }
 
-    throw new HttpException(NOT_FOUND_MSG, HttpStatus.NOT_FOUND);
+    throw new PostNotFoundException(id);
   }
 
   async deletePost(id: string) {
     const deletedResponse = await this.postsRepository.delete(id);
 
     if (!deletedResponse.affected) {
-      throw new HttpException(NOT_FOUND_MSG, HttpStatus.NOT_FOUND);
+      throw new PostNotFoundException(id);
     }
   }
 
