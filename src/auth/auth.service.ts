@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -13,6 +13,7 @@ const USER_EMAIL_EXISTS_MSG = 'User with this email already exists';
 const SOMETHING_WRONG_MSG = 'User with this email already exists';
 const CREDS_WRONG_MSG = 'Wrong credentials provided';
 
+@Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
@@ -20,11 +21,12 @@ export class AuthService {
     private readonly configService: ConfigService
   ) {}
 
-  public async register(registerationData: RegisterDto) {
-    const hashedPassword = await bcrypt.hash(registerationData.password, ROUNDS_NUMBER);
+  public async register(registrationData: RegisterDto) {
+    const hashedPassword = await bcrypt.hash(registrationData.password, ROUNDS_NUMBER);
+
     try {
       const createdUser = await this.usersService.create({
-        ...registerationData,
+        ...registrationData,
         password: hashedPassword
       })
 
@@ -57,21 +59,11 @@ export class AuthService {
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload);
 
-    return `
-      Authentication=${token};
-      HttpOnly;
-      Path=/;
-      Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}
-    `;
+    return [`Authentication=${token}`, 'HttpOnly', 'Path=/', `Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}`];
   }
 
   public getCookieForLogout() {
-    return `
-      Authentication=;
-      HttpOnly;
-      Path=/;
-      Max-Age=0
-    `;
+    return ['Authentication=', 'HttpOnly', 'Path=/', `Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}`];
   }
 
   private async verifyPassword(plainTextPassword: string, hashedPassword: string) {

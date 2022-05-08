@@ -13,7 +13,6 @@ const NOT_FOUND_MSG = 'Post not found';
 
 @Injectable()
 export class PostsService {
-  private lastPostId = 0;
   private posts: Post[] = [];
 
   constructor(@InjectRepository(PostEntity) private postsRepository: Repository<PostEntity>) {}
