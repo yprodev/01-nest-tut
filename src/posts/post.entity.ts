@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { Column, Entity, Generated, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -13,6 +14,11 @@ class Post {
   public content: string;
 
   @Column({ nullable: true })
+  @Transform(value => {
+    if (value !== null) {
+      return value;
+    }
+  })
   public category?: string;
 }
 
