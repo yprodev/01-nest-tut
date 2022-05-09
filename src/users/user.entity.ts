@@ -19,7 +19,7 @@ class User {
   @Column()
   public password: string;
 
-  @OneToOne(() => Address)
+  @OneToOne(() => Address, { eager: true })
   @JoinColumn()
   public address: Address
 }
