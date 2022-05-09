@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpCode, Post, Req, Res, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Post, Req, Res, SerializeOptions, UseGuards } from "@nestjs/common";
 import { Response } from "express";
 
 import { AuthService } from "./auth.service";
@@ -8,7 +8,9 @@ import { LocalAuthGuard } from "./localAuth.guard";
 import { RequestWithUser } from './requestWithUser.interface'
 
 @Controller('auth')
-@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({
+  strategy: 'excludeAll'
+})
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
