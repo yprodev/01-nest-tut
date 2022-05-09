@@ -22,27 +22,19 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() request: RequestWithUser, @Res() response: Response) {
+  async login(@Req() request: RequestWithUser) {
     const { user } = request;
     const cookie = this.authService.getCookieWithJwtToken(user.id);
 
-    response.setHeader('Set-Cookie', cookie);
+    request.res.setHeader('Set-Cookie', cookie);
 
-    //FIXME: Should be fixed
-    user.password = undefined;
-
-    return response.send(user);
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   authenticate(@Req() request: RequestWithUser) {
-    const user = request.user;
-
-    //FIXME: Should be fixed
-    user.password = undefined;
-
-    return user;
+    return request.user;
   }
 
   @UseGuards(JwtAuthGuard)
