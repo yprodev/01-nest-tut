@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import Post from '../posts/post.entity';
 import User from '../users/user.entity'
 import Address from "../users/address.entity";
+import Category from "../categories/category.entity";
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import Address from "../users/address.entity";
         entities: [
           Post,
           User,
-          Address
+          Address,
+          Category
         ],
         synchronize: true
       })
