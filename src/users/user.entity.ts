@@ -1,5 +1,5 @@
 import { Column, Entity, Generated, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
 import Address from "./address.entity";
 
@@ -10,14 +10,13 @@ class User {
   public id?: string;
 
   @Column({ unique: true })
-  @Expose()
   public email: string;
 
   @Column()
-  @Expose()
   public name: string;
 
   @Column()
+  @Exclude()
   public password: string;
 
   @OneToOne(() => Address, {
@@ -25,7 +24,6 @@ class User {
     cascade: true
   })
   @JoinColumn()
-  @Expose()
   public address: Address
 }
 
