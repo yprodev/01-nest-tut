@@ -1,4 +1,13 @@
-import { Column, Entity, Generated, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  Generated,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn
+} from "typeorm";
+
+import Post from "../posts/post.entity";
 
 @Entity()
 class Category {
@@ -8,6 +17,11 @@ class Category {
 
   @Column()
   public name: string;
+
+  @ManyToMany(() => Post, (post: Post) => post.categories)
+  @JoinTable()
+  public posts: Post[]
+
 }
 
 export default Category;
