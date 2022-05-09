@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 
 import PostEntity from '../posts/post.entity';
 import UserEntity from '../users/user.entity'
+import Address from "../users/address.entity";
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import UserEntity from '../users/user.entity'
         database: configService.get('POSTGRES_DB'),
         entities: [
           PostEntity,
-          UserEntity
+          UserEntity,
+          Address
         ],
         synchronize: true
       })
