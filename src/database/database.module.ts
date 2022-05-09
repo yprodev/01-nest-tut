@@ -3,8 +3,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 
 
-import PostEntity from '../posts/post.entity';
-import UserEntity from '../users/user.entity'
+import Post from '../posts/post.entity';
+import User from '../users/user.entity'
 import Address from "../users/address.entity";
 
 @Module({
@@ -20,8 +20,8 @@ import Address from "../users/address.entity";
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
         entities: [
-          PostEntity,
-          UserEntity,
+          Post,
+          User,
           Address
         ],
         synchronize: true
