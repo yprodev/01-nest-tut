@@ -30,8 +30,6 @@ export class AuthService {
         password: hashedPassword
       })
 
-      //FIXME: We do it to hide in the response. We will fix it later.
-      createdUser.password = undefined;
       return createdUser;
     } catch (err) {
       if (err?.code === PostgresErrorCode.UniqueViolation) {
@@ -47,8 +45,6 @@ export class AuthService {
       const user = await this.usersService.getByEmail(email);
       await this.verifyPassword(plainTextPassword, user.password);
 
-      //FIXME: We do it to hide in the response. We will fix it later.
-      user.password = undefined
       return user;
     } catch (err) {
       throw new HttpException(CREDS_WRONG_MSG, HttpStatus.BAD_REQUEST);
