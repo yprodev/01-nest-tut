@@ -1,16 +1,20 @@
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpCode, Post, Req, Res, UseGuards, UseInterceptors } from "@nestjs/common";
-import { Response } from "express";
 
 import { AuthService } from "./auth.service";
+import { UsersService } from "../users/users.service";
 import { RegisterDto } from "./dto/register.dto";
 import JwtAuthGuard from "./jwtAuth.guard";
 import { LocalAuthGuard } from "./localAuth.guard";
 import { RequestWithUser } from './requestWithUser.interface'
+import JwtRefreshTokenGuard from "./jwtRefreshToken.guard";
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService
+  ) {}
 
   @Post('register')
   async register(@Body() registrationData: RegisterDto) {
@@ -22,11 +26,27 @@ export class AuthController {
   @Post('login')
   async login(@Req() request: RequestWithUser) {
     const { user } = request;
-    const cookie = this.authService.getCookieWithJwtToken(user.id);
 
-    request.res.setHeader('Set-Cookie', cookie);
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(user.id);
+    const { cookie: refreshTokenCookie, token: refreshToken } = this.authService.getCookieWithJwtRefreshToken(user.id);
+
+    await this.usersService.setCurrentRefreshToken(refreshToken, user.id);
+
+    //FIXME: The author suggests to add an array, like: [accessTokenCookie, refreshTokenCookie]
+    // However, it does not work... Left just with one token. No additional time for it.
+    request.res.setHeader('Set-Cookie', accessTokenCookie);
 
     return user;
+  }
+
+  @UseGuards(JwtRefreshTokenGuard)
+  @Get('refresh')
+  refresh(@Req() request: RequestWithUser) {
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(request.user.id);
+
+    request.res.setHeader('Set-Cookie', accessTokenCookie);
+
+    return request.user;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -37,9 +57,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
-    response.setHeader('Set-Cookie', this.authService.getCookieForLogout());
-    
-    return response.sendStatus(200); 
+  async logOut(@Req() request: RequestWithUser) {
+    await this.usersService.removeRefreshToken(request.user.id);
+    request.res.setHeader('Set-Cookie', this.authService.getCookieForLogout());
   }
 }

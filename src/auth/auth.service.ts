@@ -7,6 +7,7 @@ import { UsersService } from "../users/users.service";
 import { PostgresErrorCode } from '../database/postgresErrorCodes.enum'
 import { RegisterDto } from '../auth/dto/register.dto'
 import { TokenPayload } from './tokenPayload.interface';
+import { JWT_AT_SECRET, JWT_AT_EXP, JWT_RT_SECRET, JWT_RT_EXP } from './constant'
 
 const ROUNDS_NUMBER = 12;
 const USER_EMAIL_EXISTS_MSG = 'User with this email already exists';
@@ -51,15 +52,47 @@ export class AuthService {
     }
   }
 
-  public getCookieWithJwtToken(userId: string) {
+  public getCookieWithJwtAccessToken(userId: string) {
     const payload: TokenPayload = { userId };
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get(JWT_AT_SECRET),
+      expiresIn: `${this.configService.get(JWT_AT_EXP)}s`
+    });
 
-    return [`Authentication=${token}`, 'HttpOnly', 'Path=/', `Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}`];
+    return [
+      `Authentication=${token}`,
+      'HttpOnly',
+      'Path=/',
+      `Max-Age=${this.configService.get(JWT_AT_EXP)}`
+    ];
+  }
+
+
+  public getCookieWithJwtRefreshToken(userId: string) {
+    const payload: TokenPayload = { userId };
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get(JWT_RT_SECRET),
+      expiresIn: `${this.configService.get(JWT_RT_EXP)}s`
+    });
+
+    const cookie = [
+      `Refresh=${token}`,
+      'HttpOnly',
+      'Path=/',
+      `Max-Age=${this.configService.get(JWT_RT_EXP)}`
+    ];
+
+    return { cookie, token };
   }
 
   public getCookieForLogout() {
-    return ['Authentication=', 'HttpOnly', 'Path=/', `Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}`];
+    return [
+      'Authentication=',
+      'HttpOnly',
+      'Path=/',
+      `Max-Age=0`,
+      'Refresh='
+    ];
   }
 
   private async verifyPassword(plainTextPassword: string, hashedPassword: string) {
