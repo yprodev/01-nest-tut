@@ -65,7 +65,7 @@ export class PostsService {
     }
   }
 
-  private findPostIndex(id: string) {
-    return this.posts.findIndex(post => post.id === id);
+  async getPostsWithParagraph(paragraph: string) {
+    return this.postsRepository.query('SELECT * FROM post WHERE $1 = ANY(paragraphs)', [paragraph]);
   }
 }
