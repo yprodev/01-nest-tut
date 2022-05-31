@@ -1,4 +1,4 @@
 export default class CreatePostDto {
-  content: string;
+  paragraphs: string[];
   title: string;
 }

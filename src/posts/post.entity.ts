@@ -20,8 +20,8 @@ class Post {
   @Column()
   public title: string;
 
-  @Column()
-  public content: string;
+  @Column('text', { array: true })
+  public paragraphs: string[]
 
   @Column({ nullable: true })
   public category?: string;

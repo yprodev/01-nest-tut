@@ -5,10 +5,9 @@ export default class UpdatePostDto implements Post {
   @IsUUID('4')
   id: string;
 
-  @IsString()
+  @IsString({ each: true })
   @IsNotEmpty()
-  @IsOptional()
-  content: string;
+  paragraphs: string[];
 
   @IsString()
   @IsNotEmpty()
