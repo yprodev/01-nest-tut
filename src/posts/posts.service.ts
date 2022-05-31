@@ -19,8 +19,20 @@ export class PostsService {
 
   constructor(@InjectRepository(PostEntity) private postsRepository: Repository<PostEntity>) {}
 
-  async getAllPosts() {
-    return await this.postsRepository.find({ relations: ['author']});
+  async getAllPosts(offset?: number, limit?: number) {
+    const [items, count] = await this.postsRepository.findAndCount({
+      relations: ['author'],
+      order: {
+        id: 'ASC'
+      },
+      skip: offset,
+      take: limit
+    })
+
+    return {
+      items,
+      count
+    }
   }
 
   async getPostById(id: string) {
