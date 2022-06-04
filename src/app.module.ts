@@ -5,6 +5,7 @@ import * as Joi from '@hapi/joi';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
+import { SubscribersModule } from './subscribers/subscribers.module';
 
 @Module({
   imports: [
@@ -20,12 +21,15 @@ import { CategoriesModule } from './categories/categories.module';
         JWT_ACCESS_TOKEN_EXPIRATION_TIME: Joi.string().required(),
         JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
         JWT_REFRESH_TOKEN_EXPIRATION_TIME: Joi.string().required(),
+        SERVICE_HOST_SUBSCRIBERS: Joi.string(),
+        SERVICE_PORT_SUBSCRIBERS: Joi.string(),
       })
     }),
     DatabaseModule,
     PostsModule,
     AuthModule,
-    CategoriesModule
+    CategoriesModule,
+    SubscribersModule
   ],
 })
 export class AppModule {}
